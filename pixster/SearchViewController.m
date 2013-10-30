@@ -12,15 +12,23 @@
 
 @interface SearchViewController ()
 
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (weak, nonatomic) IBOutlet UICollectionView *imageCollectionView;
 @property (nonatomic, strong) NSMutableArray *imageResults;
+
+- (IBAction)onCollectionViewTap:(id)sender;
+@property (nonatomic, strong) NSLayoutConstraint *topConstraint;
 
 @end
 
+const int NUM_SECTIONS = 1;
+NSString* const CELL_REUSE_IDENTIFIER = @"PixsterImageCell";
+
 @implementation SearchViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id)init
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    self = [super init];
     if (self) {
         self.title = @"Pixster";
         self.imageResults = [NSMutableArray array];
@@ -31,81 +39,92 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    if ([self respondsToSelector:@selector(topLayoutGuide)]) {
+        self.topConstraint =
+        [NSLayoutConstraint constraintWithItem:self.searchBar
+                                     attribute:NSLayoutAttributeTop
+                                     relatedBy:NSLayoutRelationEqual
+                                        toItem:self.topLayoutGuide
+                                     attribute:NSLayoutAttributeBottom
+                                    multiplier:1
+                                      constant:0];
+    } else {
+        self.topConstraint =
+        [NSLayoutConstraint constraintWithItem:self.searchBar
+                                     attribute:NSLayoutAttributeTop
+                                     relatedBy:0
+                                        toItem:self.view
+                                     attribute:NSLayoutAttributeTop
+                                    multiplier:1
+                                      constant:0];
+    }
+    [self.view addConstraint:self.topConstraint];
+    [self.view updateConstraints];
+    [self.view layoutIfNeeded];
+    
+    UINib* cellNib = [UINib nibWithNibName:@"ImageCollectionCell" bundle:nil];
+    [self.imageCollectionView registerNib:cellNib forCellWithReuseIdentifier:CELL_REUSE_IDENTIFIER];
+    
+    self.imageCollectionView.delegate = self;
+    self.imageCollectionView.dataSource = self;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-#pragma mark - UITableView data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
-    // Return the number of sections.
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-    return [self.imageResults count];
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"CellIdentifier";
-    
-    // Dequeue or create a cell of the appropriate type.
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    UIImageView *imageView = nil;
-    const int IMAGE_TAG = 1;
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        cell.accessoryType = UITableViewCellAccessoryNone;
-        imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
-        imageView.contentMode = UIViewContentModeScaleAspectFill;
-        imageView.tag = IMAGE_TAG;
-        [cell.contentView addSubview:imageView];
-    } else {
-        imageView = (UIImageView *)[cell.contentView viewWithTag:IMAGE_TAG];
+}
+
+#pragma mark - UICollectionView data source
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
+    return NUM_SECTIONS;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    if ([self.imageResults count] == 0) {
+        return 0;
     }
+    
+    return [self.imageResults count]/NUM_SECTIONS;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CELL_REUSE_IDENTIFIER forIndexPath:indexPath];
+    
+    const int IMAGE_TAG = 1;
+    UIImageView *imageView = (UIImageView *)[cell viewWithTag:IMAGE_TAG];
     
     // Clear the previous image
     imageView.image = nil;
-    [imageView setImageWithURL:[NSURL URLWithString:[self.imageResults[indexPath.row] valueForKeyPath:@"url"]]];
+    [imageView setImageWithURL:[NSURL URLWithString:[self.imageResults[indexPath.item] valueForKeyPath:@"url"]]];
     
     return cell;
-}
-
-- (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 300;
-}
-
-#pragma mark - UISearchDisplay delegate
-
-- (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller {
-    [self.imageResults removeAllObjects];
-    [self.searchDisplayController.searchResultsTableView reloadData];
-}
-
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
-{
-    return NO;
 }
 
 #pragma mark - UISearchBar delegate
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar setShowsCancelButton:NO animated:YES];
+    [searchBar resignFirstResponder];
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%@", [searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&q=%@", [searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]]];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         id results = [JSON valueForKeyPath:@"responseData.results"];
         if ([results isKindOfClass:[NSArray class]]) {
             [self.imageResults removeAllObjects];
-            [self.imageResults addObjectsFromArray:results];
-            [self.searchDisplayController.searchResultsTableView reloadData];
+            // Filtering out images from eofdreams domain, since they didn't seem to load properly
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT (url like[c] %@)", @"*eofdreams*"];
+            [self.imageResults addObjectsFromArray:[results filteredArrayUsingPredicate:predicate]];
+            [self.imageCollectionView setContentOffset:CGPointZero animated:YES];
+            [self.imageCollectionView reloadData];
         }
     } failure:nil];
     
@@ -122,4 +141,7 @@
     return YES;
 }
 
+- (IBAction)onCollectionViewTap:(id)sender {
+    [self.searchBar resignFirstResponder];
+}
 @end

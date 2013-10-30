@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		135B3A3918209AF00061E30D /* ImageCollectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 135B3A3818209AF00061E30D /* ImageCollectionCell.xib */; };
 		42B0DFC717A81E2800BACB2C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42B0DFC617A81E2800BACB2C /* Foundation.framework */; };
 		42B0DFC917A81E2800BACB2C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42B0DFC817A81E2800BACB2C /* CoreGraphics.framework */; };
 		42B0DFCB17A81E2800BACB2C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42B0DFCA17A81E2800BACB2C /* UIKit.framework */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		135B3A3818209AF00061E30D /* ImageCollectionCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ImageCollectionCell.xib; sourceTree = "<group>"; };
 		42B0DFC317A81E2800BACB2C /* pixster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pixster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		42B0DFC617A81E2800BACB2C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		42B0DFC817A81E2800BACB2C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -148,6 +150,7 @@
 				42B0DFF617A81E6200BACB2C /* SearchViewController.m */,
 				42B0DFF717A81E6200BACB2C /* SearchViewController.xib */,
 				42B0E07917A82E2E00BACB2C /* AFNetworking */,
+				135B3A3818209AF00061E30D /* ImageCollectionCell.xib */,
 			);
 			path = pixster;
 			sourceTree = "<group>";
@@ -288,6 +291,7 @@
 				42B0DFD117A81E2800BACB2C /* InfoPlist.strings in Resources */,
 				42B0DFD917A81E2800BACB2C /* Images.xcassets in Resources */,
 				42B0DFF917A81E6200BACB2C /* SearchViewController.xib in Resources */,
+				135B3A3918209AF00061E30D /* ImageCollectionCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -516,6 +520,7 @@
 				42B0DFF117A81E2800BACB2C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		42B0DFF217A81E2800BACB2C /* Build configuration list for PBXNativeTarget "pixsterTests" */ = {
 			isa = XCConfigurationList;
@@ -524,6 +529,7 @@
 				42B0DFF417A81E2800BACB2C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
